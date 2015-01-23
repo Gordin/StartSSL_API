@@ -3,6 +3,18 @@ StartSSL_API
 
 A python/CLI API for some StartCom StartSSL functions
 
+## HowTo
+
+Follow these steps to get certificates for multiple subdomains at the same time:
+
+1. Get an account at startssl.com and complete Class 1 verification. It's free but you'll need a verifiable address
+2. Export the client certificate you use to login to startSSL in your browser.
+In Firefox: Edit -> Preferences -> Advanced -> Certificates -> View Certificates -> Your Certificates tab -> click your cert under StartCom Ltd. -> Backup…
+This will ask you for a password. Choose anything that you can remember for a few minutes (You'll only need it once).
+3. Edit the PKCS12 variable in config.py and point it to the file you exported from Firefox.
+4. The top-level domains you want certificates for need to be verified. See **Domain Validation** for this.
+5. When your domains are verified, follow the instructions under **Certification**. You should have your certificates now.
+
 ## Authentication
 
 To authenticate you need your StartSSL client certificate.
@@ -60,6 +72,7 @@ you want to have in this certificate. If you have Class 1 certification, it has 
 ```
 example.org
 some-subdomain.example.org
+some-other-subdomain.example.org
 ```
 
 Afterwards, run:
@@ -67,7 +80,9 @@ Afterwards, run:
 ./startssl_certify.py somename
 ```
 
-If the file somename_privatekey.pem does not exist, a new 4096-bit RSA private key will be generated. The CSR will be generated automatically from the private key and uploaded to startssl. If a certificate is returned by startssl, it is stored as somename_cert.pem. If it is withheld for manual approval, you can retrieve it later like this:
+If the file somename_SUBDOMAIN.DOMAIN_privatekey.pem does not exist, a new 4096-bit RSA private key will be generated. The CSR will be generated automatically from the private key and uploaded to startssl. If a certificate is returned by startssl, it is stored as somename_cert.pem. You will get a somename_SUBDOMAIN.DOMAIN_privatekey.pem and somename_SUBDOMAIN.DOMAIN_cert.pem file for each subdomain you entered in the file.
+
+If it is withheld for manual approval, you can retrieve it later like this:
 
 ```
 ./startssl_get_certs.py

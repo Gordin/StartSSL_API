@@ -1,15 +1,27 @@
 #!/usr/bin/python
-import subprocess, re, datetime
+import subprocess
+import re
+import urllib
 
-execfile("config.py")
-
-VALIDATED_RESSOURCES = re.compile('<td nowrap>(?P<resource>.+?)</td><td nowrap> <img src="/img/yes-sm.png"></td>')
+from config import STARTSSL_BASEURI
 
 
-retr_command = "curl -b $(cat startssl_cookie.txt) -d app=12 -s \"%s\"" % (STARTSSL_BASEURI)
-output = subprocess.check_output(retr_command, shell=True)
+def get_valids():
+    VALIDATED_RESSOURCES = re.compile(
+        '<td nowrap>(?P<resource>.+?)</td><td nowrap> ' +
+        '<img src="/img/yes-sm.png"></td>')
 
-items = VALIDATED_RESSOURCES.finditer(output)
-for item in items:
-    print item.group(1)
+    params = [('app', 12)]
+    curl_command = "curl -b \"$(cat startssl_cookie.txt)\" --data '%s' -s \"%s\""\
+        % (urllib.urlencode(params), STARTSSL_BASEURI)
+    output = subprocess.check_output(curl_command, shell=True)
 
+    items = VALIDATED_RESSOURCES.finditer(output)
+    valids = []
+    for item in items:
+        print(item.group(1))
+        valids.append(item.group(1))
+    return valids
+
+if __name__ == '__main__':
+    get_valids()
