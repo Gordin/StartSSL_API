@@ -16,17 +16,18 @@ Steps 1-4 you will have to do only once.
 
 1. Get an account at startssl.com and complete Class 1 verification. It's free but you'll need a verifiable address
 2. Export the client certificate you use to login to startSSL in your browser.
-In Firefox: Edit -> Preferences -> Advanced -> Certificates -> View Certificates -> Your Certificates tab -> click your cert under StartCom Ltd. -> Backup…
-This will ask you for a password. Choose anything that you can remember for a few minutes (You'll only need it only once the first time you do step 5).
-Note that after you entered the password in step 5 and everything worked there will be a `cert.pem` file that contains your unencrypted private key for startssl. You might consider deleting this file again after you got your certificates.
+  * In Firefox: Edit -> Preferences -> Advanced -> Certificates -> View Certificates -> Your Certificates tab -> click your cert under StartCom Ltd. -> Backup…
+  * This will ask you for a password. Choose anything that you can remember for a few minutes (You'll only need it only once the first time you do step 5).
+  * Note that after you entered the password in step 5 and everything worked there will be a `cert.pem` file that contains your unencrypted private key for startssl. You might consider deleting this file again after you got your certificates.
 3. Edit the PKCS12 variable (this is the only variable you need to touch) in config.py and point it to the file you exported from Firefox.
 4. The top-level domains you want certificates for need to be verified. If they aren't already, see **Domain Validation** for this (or do it manually at startssl.com).
 
-5. If you just want a single subdomain certificate, run this and you're done
+5. Generate your certificates
+ * If you just want a single subdomain certificate, run this and you're done
  ```
-./startssl_certify.py --oneshot SUBDOMAIN.DOMAIN
-```
-If you want to generate certs for multiple subdomains at once, follow the instructions under **Certification**.
+ ./startssl_certify.py --oneshot SUBDOMAIN.DOMAIN
+ ```
+ * If you want to generate certs for multiple subdomains at once, follow the instructions under **Certification**.
 
 ## Domain Validation
 
@@ -54,7 +55,7 @@ If the script is cancelled in between, run it again with the previously displaye
 ## Certification
 
 To generate certificates, edit `domains.txt` and put in all domain and subdomain names
-you want to have in this certificate. It has to look like this:
+you want to have certificates for. It has to look like this:
 ```
 example.org
 some-subdomain.example.org
