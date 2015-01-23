@@ -1,0 +1,4 @@
+example.org
+blog.example.org
+mail.example.org
+git.example.org

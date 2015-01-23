@@ -15,13 +15,18 @@ privkey_suffix = "_privatekey.pem"
 cert_suffix = "_cert.pem"
 
 
-def main():
-    domainlist_file = sys.argv[1] + "_domains.txt"
-    if not os.path.isfile(domainlist_file):
-        sys.exit("Domain list file %s doesn't exist" % domainlist_file)
+def main(domain):
     auth()
     valids = get_valids()
-    domains = get_domains(domainlist_file, valids)
+    if not domain:
+        domainlist_file = "domains.txt"
+        if not os.path.isfile(domainlist_file):
+            sys.exit("Domain list file %s doesn't exist" % domainlist_file)
+        domains = get_domains(domainlist_file, valids)
+    else:
+        if domain.split(".", 1)[1] not in valids:
+            sys.exit("Domain is not validated!")
+        domains = [{"top": domain.split(".", 1)[1], "subs": [domain]}]
     for domain in domains:
         top_domain = domain["top"]
         if not VALIDATED:
@@ -51,13 +56,12 @@ def curl(params):
 
 
 def generate_key(domain, subdomain):
-    prefix = sys.argv[1] + "_"
     if subdomain:
-        privkey_file = prefix + subdomain + privkey_suffix
-        cert_file = prefix + subdomain + cert_suffix
+        privkey_file = subdomain + privkey_suffix
+        cert_file = subdomain + cert_suffix
     else:
-        privkey_file = prefix + domain + privkey_suffix
-        cert_file = prefix + domain + cert_suffix
+        privkey_file = domain + privkey_suffix
+        cert_file = domain + cert_suffix
     if not os.path.isfile(privkey_file):
         print("Private key file %s doesn't exist, generating..."
               % privkey_file)
@@ -178,7 +182,11 @@ def fifth_step(token2, cert_file):
         sys.exit("Error in last step: "+output)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Invalid command line params")
-        sys.exit(5)
-    main()
+    if sys.argv[1] != "--multiple":
+        if len(sys.argv) == 3 and sys.argv[1] == "--oneshot":
+            main(sys.argv[2])
+            sys.exit(0)
+        else:
+            print("Invalid command line params")
+            sys.exit(5)
+    main(False)
