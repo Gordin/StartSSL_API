@@ -5,6 +5,7 @@ import sys
 import os.path
 import tempfile
 import urllib
+import os
 
 from config import STARTSSL_BASEURI, VALIDATED
 from startssl_get_valids import get_valids
@@ -13,6 +14,26 @@ from startssl_auth import auth
 cert_type = "server"
 privkey_suffix = "_privatekey.pem"
 cert_suffix = "_cert.pem"
+rootca = "ca.pem"
+class1 = "sub.class1.server.ca.pem"
+
+
+def get_startssl_certs():
+    startssl_certs = "http://www.startssl.com/certs/"
+    subprocess.check_output("curl %s -O" % (startssl_certs + rootca),
+                            shell=True)
+    subprocess.check_output("curl %s -O" % (startssl_certs + class1),
+                            shell=True)
+
+
+def add_intermediates(cert_filename):
+    with open(cert_filename, 'a') as outfile:
+        with open(class1, 'r') as pem:
+            pem_content = pem.read()
+            outfile.write(os.linesep + pem_content)
+        with open(rootca, 'r') as pem:
+            pem_content = pem.read()
+            outfile.write(pem_content)
 
 
 def main(domain):
@@ -27,6 +48,7 @@ def main(domain):
         if domain.split(".", 1)[1] not in valids:
             sys.exit("Domain is not validated!")
         domains = [{"top": domain.split(".", 1)[1], "subs": [domain]}]
+    get_startssl_certs()
     for domain in domains:
         top_domain = domain["top"]
         if not VALIDATED:
@@ -37,6 +59,7 @@ def main(domain):
                 third_step(token2)
                 fourth_step(token2, [top_domain], [sub_domain])
                 fifth_step(token2, cert_file)
+                add_intermediates(cert_file)
                 print("Success! Saved cert at %s" % cert_file)
         else:
             privkey_file, cert_file = generate_key(top_domain, False)
